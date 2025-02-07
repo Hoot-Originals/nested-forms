@@ -1,0 +1,130 @@
+{
+  "organizationName": "TechCorp International",
+  "headquartersLocation": "San Francisco, CA",
+  "foundedYear": 1995,
+  "branches": [
+    {
+      "branchId": "NA-001",
+      "name": "North America HQ",
+      "location": "San Francisco, CA",
+      "departments": [
+        {
+          "departmentId": "ENG",
+          "name": "Engineering",
+          "headCount": 250,
+          "roles": [
+            {
+              "roleId": "ENG-LEAD",
+              "title": "Engineering Lead",
+              "level": "Senior",
+              "jobs": [
+                {
+                  "jobId": "ENG-LEAD-001",
+                  "title": "Principal Software Architect",
+                  "responsibilities": [
+                    "System architecture design",
+                    "Technical leadership",
+                    "Cross-team coordination"
+                  ],
+                  "requiredSkills": [
+                    "Distributed systems",
+                    "Cloud architecture",
+                    "Team leadership"
+                  ],
+                  "experienceYears": 10
+                }
+              ]
+            },
+            {
+              "roleId": "ENG-DEV",
+              "title": "Software Developer",
+              "level": "Mid",
+              "jobs": [
+                {
+                  "jobId": "ENG-DEV-001",
+                  "title": "Full Stack Developer",
+                  "responsibilities": [
+                    "Feature development",
+                    "Code review",
+                    "Testing"
+                  ],
+                  "requiredSkills": [
+                    "JavaScript",
+                    "Python",
+                    "SQL"
+                  ],
+                  "experienceYears": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "departmentId": "HR",
+          "name": "Human Resources",
+          "headCount": 50,
+          "roles": [
+            {
+              "roleId": "HR-MGR",
+              "title": "HR Manager",
+              "level": "Senior",
+              "jobs": [
+                {
+                  "jobId": "HR-MGR-001",
+                  "title": "Talent Acquisition Manager",
+                  "responsibilities": [
+                    "Recruitment strategy",
+                    "Team management",
+                    "Policy development"
+                  ],
+                  "requiredSkills": [
+                    "Recruiting",
+                    "People management",
+                    "HR policies"
+                  ],
+                  "experienceYears": 7
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "branchId": "EU-001",
+      "name": "European HQ",
+      "location": "London, UK",
+      "departments": [
+        {
+          "departmentId": "SALES",
+          "name": "Sales",
+          "headCount": 100,
+          "roles": [
+            {
+              "roleId": "SALES-REP",
+              "title": "Sales Representative",
+              "level": "Entry",
+              "jobs": [
+                {
+                  "jobId": "SALES-REP-001",
+                  "title": "Account Executive",
+                  "responsibilities": [
+                    "Lead generation",
+                    "Client meetings",
+                    "Sales reporting"
+                  ],
+                  "requiredSkills": [
+                    "Communication",
+                    "Negotiation",
+                    "CRM software"
+                  ],
+                  "experienceYears": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
