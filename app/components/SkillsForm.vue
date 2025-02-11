@@ -1,6 +1,6 @@
-<script setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import { object, string, array } from 'yup'
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { SkillSchema } from '~/types'
 
 const jobApplication = defineModel('jobApplication', {
   type: Object,
@@ -12,17 +12,6 @@ const props = defineProps({
     type: Object,
     required: true
   }
-})
-
-const emit = defineEmits(['update:modelValue'])
-
-const schema = object({
-  skills: array().of(object({
-    skill: string().required().trim(),
-    description: string().required().trim()
-  })).required(),
-  experience: string().required().trim(),
-  portfolio: string().url().required().trim()
 })
 
 const selectedBranch = computed(() => {
@@ -57,21 +46,24 @@ watch(() => jobApplication.value.job, (newVal) => {
 })
 
 function updateSkill(skill, description) {
-  if (!jobApplication.value.skills[skill]) {
-    jobApplication.value.skills[skill] = {
+  if (!jobApplication.value.skills.find(s => s.skill === skill)) {
+    jobApplication.value.skills.push({
       skill,
       description
-    }
+    })
   } else {
-    jobApplication.value.skills[skill].description = description
+    const existingSkill = jobApplication.value.skills.find(s => s.skill === skill)
+    if (existingSkill) {
+      existingSkill.description = description
+    }
   }
 }
 
-const formRef = ref(null)
+const skillsForm = ref()
 
 async function validate() {
   try {
-    await formRef.value?.validate()
+    await skillsForm.value?.validate()
   } catch (error) {
     throw error
   }
@@ -79,11 +71,11 @@ async function validate() {
 
 const parse = async () => {
   try {
-    const parsed = await schema.validate({
+    const parsed = SkillSchema.parse({
       skills: jobApplication.value.skills,
       experience: jobApplication.value.experience,
       portfolio: jobApplication.value.portfolio
-    }, { stripUnknown: true })
+    })
     return parsed
   } catch (error) {
     throw error
@@ -103,9 +95,9 @@ defineExpose({
     </template>
 
     <UForm
-      ref="formRef"
+      ref="skillsForm"
       :state="jobApplication"
-      :schema="schema"
+      :schema="SkillSchema"
       :validate-on="['blur', 'change', 'input']"
     >
       <div class="space-y-4">
@@ -117,7 +109,7 @@ defineExpose({
             <UTextarea
               v-model="jobApplication.skills[idx].description"
               :placeholder="`Describe your experience with ${skill}`"
-              @update:model-value="updateSkill(skill, $event)"
+              @update:model-value="updateSkill(skill, String($event))"
             />
           </UFormField>
         </div>

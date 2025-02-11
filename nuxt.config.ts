@@ -12,5 +12,15 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/ui'],
 
-  css: ['~/assets/css/main.css']
+  css: ['~/assets/css/main.css'],
+
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        noImplicitAny: false,
+        strict: false,
+        allowJs: true
+      }
+    }
+  }
 })

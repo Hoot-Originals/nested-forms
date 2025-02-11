@@ -1,27 +1,21 @@
-<script setup>
-import { ref, reactive } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import orgData from '~/org.json'
 import { sanitizeObject } from '~/utils/sanitize'
+import type { JobApplication } from '~/types/types'
 
 const toast = useToast()
 
 const jobApplicationRef = ref(null)
 
-const jobApplication = ref({
-  branch: undefined,
-  department: undefined,
-  role: undefined,
-  job: undefined,
-  personalInfo: undefined,
-  skills: undefined
-})
+const jobApplication = ref<JobApplication>({})
 
 const handleSubmit = async () => {
   try {
     // First validate
     await jobApplicationRef.value?.validate()
 
-    // Then parse through Yup schemas
+    // Then parse - this will throw if validation fails
     const parsedData = await jobApplicationRef.value?.parse()
 
     // Then sanitize
@@ -36,7 +30,9 @@ const handleSubmit = async () => {
       icon: 'i-heroicons-check-circle',
     })
   } catch (error) {
-    return toast.add({
+    console.error('------------ ERROR ------------')
+    console.error('Validation errors:', error)
+    toast.add({
       title: 'Validation Errors',
       description: 'The form contains errors. Please fix them and try again.',
       color: 'error',
@@ -53,18 +49,16 @@ const handleSubmit = async () => {
 
       <JobApplicationForm
         ref="jobApplicationRef"
-        :key="jobApplicationKey"
         v-model:job-application="jobApplication"
         :organization-data="orgData"
       />
 
       <div class="mt-6">
         <UButton
+          label="Submit Application"
           color="primary"
-          @click="handleSubmit"
-        >
-          Submit Application
-        </UButton>
+          @click.prevent="handleSubmit"
+        />
       </div>
     </div>
   </div>

@@ -1,10 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { object, string } from 'yup'
+import { PersonalInfoSchema } from '~/types'
 
 const jobApplication = defineModel('jobApplication', {
   type: Object,
-  default: () => ({})
+  required: true
 })
 
 const props = defineProps({
@@ -21,29 +21,33 @@ const personalInfo = ref({
   phone: '',
 })
 
-const schema = object({
-  firstName: string().required('First name is required').trim(),
-  lastName: string().required('Last name is required').trim(),
-  email: string().email('Invalid email').required('Email is required').lowercase().trim(),
-  phone: string().required('Phone number is required').trim(),
-})
-
-const formRef = ref(null)
-const skillsRef = ref(null)
+const personalInfoForm = ref()
+const skillsForm = ref()
 
 const validate = async () => {
   try {
-    await formRef.value?.validate()
-    await skillsRef.value?.validate()
+    console.log('validating personal info')
+    await Promise.all([
+      personalInfoForm.value?.validate(),
+      skillsForm.value?.validate()
+    ])
+    return true
   } catch (error) {
     throw error
   }
 }
 
+
 const parse = async () => {
   try {
-    const parsed = await schema.validate(personalInfo.value, { stripUnknown: true })
-    return parsed
+    await validate()
+    const parsedPersonalInfo = PersonalInfoSchema.parse(personalInfo.value)
+    const parsedSkills = skillsForm.value?.parse()
+
+    return {
+      ...parsedPersonalInfo,
+      skills: parsedSkills
+    }
   } catch (error) {
     throw error
   }
@@ -55,6 +59,7 @@ watch(personalInfo.value, (newVal) => {
   }
 })
 
+// Define a type for the exposed properties
 defineExpose({
   validate,
   parse
@@ -69,9 +74,9 @@ defineExpose({
     </template>
 
     <UForm
-      ref="formRef"
+      ref="personalInfoForm"
       :state="personalInfo"
-      :schema="schema"
+      :schema="PersonalInfoSchema"
       :validate-on="['blur', 'change', 'input']"
     >
       <div class="grid grid-cols-2 gap-4">
@@ -107,7 +112,7 @@ defineExpose({
 
     <div class="mt-6">
       <SkillsForm
-        ref="skillsRef"
+        ref="skillsForm"
         v-model:job-application="jobApplication"
         :organization-data="props.organizationData"
       />

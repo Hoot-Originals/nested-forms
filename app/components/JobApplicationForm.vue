@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { object, string } from 'yup'
+import { JobApplicationSchema } from '~/types'
 
 const jobApplication = defineModel('jobApplication', {
   type: Object,
@@ -8,55 +8,62 @@ const jobApplication = defineModel('jobApplication', {
 })
 
 const props = defineProps({
+  // jobApplication: {
+  //   type: Object,
+  //   required: true
+  // },
   organizationData: {
     type: Object,
     required: true
   }
 })
 
-const formSchema = object({
-  branch: string().required('Branch is required'),
-  department: string().required('Department is required'),
-  role: string().required('Role is required'),
-  job: string().required('Job is required'),
-})
+const jobForm = ref()
+const personalInfoForm = ref()
 
-const formRef = ref(null)
+// const jobApplication = ref({
+//   branch: null,
+//   department: null,
+//   role: null,
+//   job: null
+// })
+
+// onMounted(() => {
+//   jobApplication.value = { ...jobApplication.value }
+// })
+
 
 // Method that parent can call to validate entire form
 const validate = async () => {
   try {
-    const [formValid, personalInfoValid, skillsValid] = await Promise.all([
-      formRef.value?.validate(),
-      personalInfoRef.value?.validate(),
-      skillsRef.value?.validate()
-    ])
+    await jobForm.value?.validate()
+    await personalInfoForm.value?.validate()
+    // Validate all nested forms
+    return true
   } catch (error) {
     throw error
   }
 }
 
-// Add parse method alongside validate
+// Parse method to get all validated data
 const parse = async () => {
   try {
-    const [formParsed, personalInfoParsed, skillsParsed] = await Promise.all([
-      formSchema.validate(jobApplication.value, { stripUnknown: true }),
-      personalInfoRef.value?.parse(),
-      skillsRef.value?.parse()
-    ])
+    // First validate
+    await validate()
 
+    // Then parse each section
+    const formData = JobApplicationSchema.parse(jobApplication.value)
+    const personalData = await personalInfoForm.value?.parse()
+
+    // Combine all data
     return {
-      ...formParsed,
-      personalInfo: personalInfoParsed,
-      skills: skillsParsed
+      ...formData,
+      personalInfo: personalData
     }
   } catch (error) {
     throw error
   }
 }
-
-const personalInfoRef = ref(null)
-const skillsRef = ref(null)
 
 const selectedBranch = computed(() => {
   if (jobApplication.value?.branch) {
@@ -100,26 +107,33 @@ const jobs = computed(() => {
   return []
 })
 
-watch(() => jobApplication.value?.branch, (oldVal, newVal) => {
-  if (oldVal !== newVal) {
-    jobApplication.value.department = undefined
-    jobApplication.value.role = undefined
-    jobApplication.value.job = undefined
-  }
-})
+// watch(() => jobApplication.value?.branch, (oldVal, newVal) => {
+//   if (oldVal !== newVal) {
+//     jobApplication.value.department = undefined
+//     jobApplication.value.role = undefined
+//     jobApplication.value.job = undefined
+//   }
+// })
 
-watch(() => jobApplication.value?.department, (oldVal, newVal) => {
-  if (oldVal !== newVal) {
-    jobApplication.value.role = undefined
-    jobApplication.value.job = undefined
-  }
-})
+// watch(() => jobApplication.value?.department, (oldVal, newVal) => {
+//   if (oldVal !== newVal) {
+//     jobApplication.value.role = undefined
+//     jobApplication.value.job = undefined
+//   }
+// })
 
-watch(() => jobApplication.value?.role, (oldVal, newVal) => {
-  if (oldVal !== newVal) {
-    jobApplication.value.job = undefined
-  }
-})
+// watch(() => jobApplication.value?.role, (oldVal, newVal) => {
+//   if (oldVal !== newVal) {
+//     jobApplication.value.job = undefined
+//   }
+// })
+
+// watch(jobApplication.value, (newVal) => {
+//   jobApplication.value = {
+//     ...jobApplication.value,
+//     ...newVal
+//   }
+// })
 
 defineExpose({
   validate,
@@ -135,10 +149,10 @@ defineExpose({
     </template>
 
     <UForm
-      ref="formRef"
+      ref="jobForm"
       :state="jobApplication"
-      :schema="formSchema"
-      :validate-on="['blur', 'change', 'input']"
+      :schema="JobApplicationSchema"
+      :validate-on="['input']"
       class="space-y-6"
     >
       <div class="grid grid-cols-1 gap-4">
@@ -162,7 +176,7 @@ defineExpose({
         >
           <USelectMenu
             v-model="jobApplication.department"
-            :items="departments"
+            :items="props.organizationData.branches.find(branch => branch.branchId === jobApplication.branch)?.departments"
             label-key="name"
             value-key="departmentId"
             :disabled="!jobApplication.branch"
@@ -176,7 +190,7 @@ defineExpose({
         >
           <USelectMenu
             v-model="jobApplication.role"
-            :items="roles"
+            :items="props.organizationData.branches.find(branch => branch.branchId === jobApplication.branch)?.departments.find(department => department.departmentId === jobApplication.department)?.roles"
             label-key="title"
             value-key="roleId"
             :disabled="!jobApplication.department"
@@ -197,14 +211,13 @@ defineExpose({
             class="w-48"
           />
         </UFormField>
-
-        <!-- Nested Form Components -->
-        <PersonalInfoForm
-          ref="personalInfoRef"
-          v-model:job-application="jobApplication"
-          :organization-data="props.organizationData"
-        />
       </div>
     </UForm>
+
+    <PersonalInfoForm
+      ref="personalInfoForm"
+      v-model:job-application="jobApplication"
+      :organization-data="props.organizationData"
+    />
   </UCard>
 </template>
