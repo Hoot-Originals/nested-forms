@@ -26,7 +26,7 @@ const skillsForm = ref()
 
 const validate = async () => {
   try {
-    console.log('validating personal info')
+    // console.log('validating personal info')
     await Promise.all([
       personalInfoForm.value?.validate(),
       skillsForm.value?.validate()
@@ -42,10 +42,10 @@ const parse = async () => {
   try {
     await validate()
     const parsedPersonalInfo = PersonalInfoSchema.parse(personalInfo.value)
-    const parsedSkills = skillsForm.value?.parse()
+    const parsedSkills = await skillsForm.value?.parse()
 
     return {
-      ...parsedPersonalInfo,
+      personalInfo: parsedPersonalInfo,
       skills: parsedSkills
     }
   } catch (error) {

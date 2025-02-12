@@ -21,23 +21,18 @@ const props = defineProps({
 const jobForm = ref()
 const personalInfoForm = ref()
 
-// const jobApplication = ref({
-//   branch: null,
-//   department: null,
-//   role: null,
-//   job: null
-// })
-
-// onMounted(() => {
-//   jobApplication.value = { ...jobApplication.value }
-// })
-
 
 // Method that parent can call to validate entire form
 const validate = async () => {
   try {
-    await jobForm.value?.validate()
-    await personalInfoForm.value?.validate()
+    // If we don't use the Promise.all, and the first form is invalid,
+    // the second form will not be validated, as the validation throws an error,
+    // causing the the app to bail and not validate the second/subsequent forms.
+    await Promise.all([
+      jobForm.value?.validate(),
+      personalInfoForm.value?.validate()
+    ])
+
     // Validate all nested forms
     return true
   } catch (error) {
@@ -58,7 +53,7 @@ const parse = async () => {
     // Combine all data
     return {
       ...formData,
-      personalInfo: personalData
+      ...personalData
     }
   } catch (error) {
     throw error
@@ -86,6 +81,10 @@ const selectedRole = computed(() => {
   return null
 })
 
+const branches = computed(() => {
+  return props.organizationData.branches
+})
+
 const departments = computed(() => {
   if (jobApplication.value?.branch) {
     return props.organizationData.branches.find(branch => branch.branchId === jobApplication.value?.branch)?.departments
@@ -106,34 +105,6 @@ const jobs = computed(() => {
   }
   return []
 })
-
-// watch(() => jobApplication.value?.branch, (oldVal, newVal) => {
-//   if (oldVal !== newVal) {
-//     jobApplication.value.department = undefined
-//     jobApplication.value.role = undefined
-//     jobApplication.value.job = undefined
-//   }
-// })
-
-// watch(() => jobApplication.value?.department, (oldVal, newVal) => {
-//   if (oldVal !== newVal) {
-//     jobApplication.value.role = undefined
-//     jobApplication.value.job = undefined
-//   }
-// })
-
-// watch(() => jobApplication.value?.role, (oldVal, newVal) => {
-//   if (oldVal !== newVal) {
-//     jobApplication.value.job = undefined
-//   }
-// })
-
-// watch(jobApplication.value, (newVal) => {
-//   jobApplication.value = {
-//     ...jobApplication.value,
-//     ...newVal
-//   }
-// })
 
 defineExpose({
   validate,
@@ -163,7 +134,7 @@ defineExpose({
         >
           <USelectMenu
             v-model="jobApplication.branch"
-            :items="props.organizationData.branches"
+            :items="branches"
             label-key="name"
             value-key="branchId"
             class="w-48"
@@ -176,7 +147,7 @@ defineExpose({
         >
           <USelectMenu
             v-model="jobApplication.department"
-            :items="props.organizationData.branches.find(branch => branch.branchId === jobApplication.branch)?.departments"
+            :items="departments"
             label-key="name"
             value-key="departmentId"
             :disabled="!jobApplication.branch"
@@ -190,7 +161,7 @@ defineExpose({
         >
           <USelectMenu
             v-model="jobApplication.role"
-            :items="props.organizationData.branches.find(branch => branch.branchId === jobApplication.branch)?.departments.find(department => department.departmentId === jobApplication.department)?.roles"
+            :items="roles"
             label-key="title"
             value-key="roleId"
             :disabled="!jobApplication.department"
@@ -214,10 +185,12 @@ defineExpose({
       </div>
     </UForm>
 
-    <PersonalInfoForm
-      ref="personalInfoForm"
-      v-model:job-application="jobApplication"
-      :organization-data="props.organizationData"
-    />
+    <div class="mt-6">
+      <PersonalInfoForm
+        ref="personalInfoForm"
+        v-model:job-application="jobApplication"
+        :organization-data="props.organizationData"
+      />
+    </div>
   </UCard>
 </template>

@@ -30,8 +30,6 @@ const handleSubmit = async () => {
       icon: 'i-heroicons-check-circle',
     })
   } catch (error) {
-    console.error('------------ ERROR ------------')
-    console.error('Validation errors:', error)
     toast.add({
       title: 'Validation Errors',
       description: 'The form contains errors. Please fix them and try again.',

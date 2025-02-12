@@ -15,19 +15,19 @@ const props = defineProps({
 })
 
 const selectedBranch = computed(() => {
-  return props.organizationData.branches.find(branch => branch.branchId === jobApplication.value?.branch)
+  return props.organizationData.branches.find((branch: any) => branch.branchId === jobApplication.value?.branch)
 })
 
 const selectedDepartment = computed(() => {
-  return selectedBranch.value?.departments.find(department => department.departmentId === jobApplication.value?.department)
+  return selectedBranch.value?.departments.find((department: any) => department.departmentId === jobApplication.value?.department)
 })
 
 const selectedRole = computed(() => {
-  return selectedDepartment.value?.roles.find(role => role.roleId === jobApplication.value?.role)
+  return selectedDepartment.value?.roles.find((role: any) => role.roleId === jobApplication.value?.role)
 })
 
 const selectedJob = computed(() => {
-  return selectedRole.value?.jobs.find(job => job.jobId === jobApplication.value?.job)
+  return selectedRole.value?.jobs.find((job: any) => job.jobId === jobApplication.value?.job)
 })
 
 const requiredSkills = computed(() => {
